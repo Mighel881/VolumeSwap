@@ -3,7 +3,8 @@
 @end
 static BOOL shouldSwap;
 %hook SBVolumeControl
--(BOOL)_isVolumeHUDVisibleOrFading {
+//-(BOOL)_isVolumeHUDVisibleOrFading {
+-(BOOL)_isVolumeHUDVisible {
 	UIDeviceOrientation deviceOrientation = [[UIDevice currentDevice] orientation];
 	if (deviceOrientation == UIDeviceOrientationLandscapeLeft){
 		shouldSwap = YES;
