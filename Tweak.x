@@ -2,16 +2,22 @@
 -(void)changeVolumeByDelta:(float)arg1;
 @end
 static BOOL shouldSwap;
+static BOOL prevOrientationIsRegular = YES;
 %hook SBVolumeControl
-//-(BOOL)_isVolumeHUDVisibleOrFading {
--(BOOL)_isVolumeHUDVisible {
+-(BOOL)_isVolumeHUDVisibleOrFading {
 	UIDeviceOrientation deviceOrientation = [[UIDevice currentDevice] orientation];
 	if (deviceOrientation == UIDeviceOrientationLandscapeLeft){
 		shouldSwap = YES;
+    prevOrientationIsRegular = NO;
 	} else if (deviceOrientation == UIDeviceOrientationPortraitUpsideDown){
 		shouldSwap = YES;
-	} else {
+    prevOrientationIsRegular = NO;
+  } else if (deviceOrientation == UIDeviceOrientationFaceUp && !prevOrientationIsRegular){
+    shouldSwap = YES;
+    prevOrientationIsRegular = NO;
+  } else {
 		shouldSwap = NO;
+    prevOrientationIsRegular = YES;
 	}
 	return %orig;
 }
