@@ -1,33 +1,15 @@
-static BOOL volumeDownButtonIsDown = YES;
-static BOOL volumeUpButtonIsDown = YES;
 static BOOL shouldSwap;
 static BOOL shouldSwapReversed = NO;
 static BOOL prevOrientationIsRegular = YES;
 NSDictionary *bundleDefaults = [[NSUserDefaults standardUserDefaults]persistentDomainForName:@"com.popsicletreehouse.volumeswapprefs"];
 bool isReverse = [[bundleDefaults objectForKey:@"isReversed"]boolValue];
 bool isEnabled = [[bundleDefaults objectForKey:@"isEnabled"]boolValue];
-BOOL og = og;
 
 @interface SBVolumeControl
 -(void)changeVolumeByDelta:(float)arg1;
 @end
 @interface SBVolumeHardwareButtonActions : SBVolumeControl
 @end
-
-/*%hook SBVolumeHardwareButtonActions
--(void)volumeDecreasePressDown {
-volumeDownButtonIsDown = NO;
-}
--(void)volumeDecreasePressUp {
-volumeDownButtonIsDown = YES;
-}
--(void)volumeIncreasePressDown {
-  volumeUpButtonIsDown = NO;
-}
--(void)volumeIncreasePressUp {
-  volumeUpButtonIsDown = YES;
-}
-%end*/
 
 %hook SBVolumeControl
 -(BOOL)_isVolumeHUDVisibleOrFading {
@@ -56,43 +38,24 @@ if(isEnabled){
   } else {
 		shouldSwap = NO;
     prevOrientationIsRegular = YES;
-	}
-  /*while(volumeUpButtonIsDown) {
-    if(shouldSwap){
-      [self changeVolumeByDelta:-0.0625];
-    } else if (shouldSwapReversed && !shouldSwap) {
-      [self changeVolumeByDelta:-0.0625];
-    } else {
-      return og;
-      }
-    }
-  while(volumeDownButtonIsDown) {
-    if(shouldSwap){
-      [self changeVolumeByDelta:0.0625];
-    } else if (shouldSwapReversed && !shouldSwap) {
-      [self changeVolumeByDelta:0.0625];
-    } else {
-    return og;
-      }
-    }*/
-	  return og;
+	  }
   }
-  return og;
+  return %orig;
 }
 -(void)increaseVolume {
   if(isEnabled){
-    while(shouldSwap && volumeUpButtonIsDown){
+    if(shouldSwap){
       [self changeVolumeByDelta:-0.0625];
-    } while (shouldSwapReversed && !shouldSwap && volumeDownButtonIsDown) {
+    } if (shouldSwapReversed && !shouldSwap) {
       [self changeVolumeByDelta:-0.0625];
     }
   } else %orig;
 }
 -(void)decreaseVolume {
   if(isEnabled) {
-    while (shouldSwap && volumeDownButtonIsDown) {
+    if (shouldSwap) {
       [self changeVolumeByDelta:0.0625];
-    } while (shouldSwapReversed && !shouldSwap && volumeUpButtonIsDown) {
+    } if (shouldSwapReversed && !shouldSwap) {
       [self changeVolumeByDelta:0.0625];
     }
   } else %orig;
